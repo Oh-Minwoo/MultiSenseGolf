@@ -1,0 +1,32 @@
+{
+  "train": [
+    "Sub09",
+    "Sub17",
+    "Sub01",
+    "Sub19",
+    "Sub12",
+    "Sub10",
+    "Sub14",
+    "Sub02",
+    "Sub22",
+    "Sub06",
+    "Sub03",
+    "Sub13",
+    "Sub16",
+    "Sub04",
+    "Sub05",
+    "Sub23",
+    "Sub18"
+  ],
+  "val": [
+    "Sub21",
+    "Sub24"
+  ],
+  "test": [
+    "Sub08",
+    "Sub11",
+    "Sub15",
+    "Sub20",
+    "Sub07"
+  ]
+}

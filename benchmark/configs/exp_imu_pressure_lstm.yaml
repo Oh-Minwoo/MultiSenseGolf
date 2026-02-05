@@ -1,0 +1,35 @@
+data:
+  include_fpv: false
+  include_pressure: true
+  normalize: true
+  root: Data
+  split_name: train
+  split_path: benchmark/configs/split.json
+  target_fps: 48.0
+model:
+  backbone:
+    dropout: 0.1
+    hidden_dim: 256
+    name: lstm
+    num_layers: 3
+  fusion_dropout: 0.0
+  head_dropout: 0.1
+  latent_dim: 128
+  modality_dims:
+    imu: 72
+    pressure: 480
+    fpv: 512
+  modality_dropout: 0.1
+  out_dim: 63
+train:
+  batch_size: 8
+  epochs: 30
+  lr: 0.0001
+  lam_pos: 1
+  lam_mpjve: 1
+  lam_jerk: 0.1
+  num_workers: 0
+  output_dir: benchmark/outputs/exp_imu_pressure_lstm
+  patience: 10
+  seed: 42
+  weight_decay: 0.0
