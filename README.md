@@ -1,7 +1,5 @@
 # MultiSenseGolf: A Multimodal Wearable Sensor Dataset for Sensor Fusion-Based Human Pose Estimation in Golf Swing Coaching Systems
 
-# MultiSenseGolf: A Multimodal Wearable Sensor Dataset for Sensor-Fusion-Based Golf Swing Pose Estimation
-
 ![Figure 1](assets/figure1_ver5.png)
 
 
