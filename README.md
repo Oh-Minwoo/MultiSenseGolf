@@ -7,7 +7,9 @@ MultiSenseGolf is a multimodal wearable sensor-based golf swing motion dataset t
 
 ---
 
-## Installation Instructions
+## Initial Setup
+
+### Installation
 ```powershell
 # 1. Create a conda virtual environment.
 conda create -n msg python=3.11 -y
@@ -17,7 +19,7 @@ conda activate msg
 python -m pip install -r requirements.txt
 ```
 
-## Data Download & Directory Layout
+### Data Download & Directory Layout
 
 Download the dataset from the official link: https://doi.org/10.7910/DVN/LCCLLW  
 After downloading, place the data under the project root as `Data/` so the tutorials can locate files by subject and swing.
