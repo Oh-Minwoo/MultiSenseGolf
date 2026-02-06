@@ -7,7 +7,7 @@ MultiSenseGolf is a multimodal wearable sensor-based golf swing motion dataset t
 
 ---
 
-#### Installation Instructions
+## Installation Instructions
 ```powershell
 # 1. Create a conda virtual environment.
 conda create -n msg python=3.11 -y
@@ -17,7 +17,7 @@ conda activate msg
 python -m pip install -r requirements.txt
 ```
 
-#### Data Download & Directory Layout
+## Data Download & Directory Layout
 
 Download the dataset from the official link: https://doi.org/10.7910/DVN/LCCLLW  
 After downloading, place the data under the project root as `Data/` so the tutorials can locate files by subject and swing.
@@ -48,9 +48,9 @@ MultiSenseGolf/
 ```
 <br>
 
-#### Data Usage Tutorial
+## Data Usage Tutorial
 
-##### Load HDF5 Data
+### Load HDF5 Data
 ```powershell
 # Load target swing data stored in a corresponding HDF5 file
 python tutorials/load_hdf5.py --subject Sub24 --swing Swing01
@@ -59,7 +59,7 @@ python tutorials/load_hdf5.py --subject Sub24 --swing Swing01
 python tutorials/load_hdf5.py --subject Sub24 --swing Swing01 --save-dir outputs
 ```
 
-##### Visualization Examples
+### Visualization Examples
 
 ```powershell
 # Visualize PNS 3D joint skeleton from the HDF5 file.
@@ -74,11 +74,11 @@ python tutorials/visualize_fpv_and_gaze.py --subject Sub24 --swing Swing01
 
 <br>
 
-#### Benchmark Test 
+## Benchmark Test 
 To support reproducibility, we release the full benchmark code and configuration used in the Technical Validation experiments of the paper. We benchmarked supervised 3D Human Pose Estimation from multimodal golf swing data using four input conditions: `IMU Only`, `IMU + Pressure`, `IMU + FPV`, and `IMU + Pressure + FPV`. Inputs are provided as time aligned sequences consisting of (1) IMU features derived from body worn sensors, (2) bilateral insole pressure maps represented as 24×10 arrays per foot, and (3) FPV video embeddings extracted per frame. We report MPJPE, MPJVE, and Jitter across three baseline backbones (TCN, BiLSTM, Transformer), and the best overall MPJPE is achieved by the TCN with `IMU + Pressure + FPV`. Detailed experiment design and results can be found in the paper (Not published yet). 
 
 
-##### How to Run
+### How to Run
 
 ```powershell
 # 1. (Optional) Create a subject split file if you want a new split.
@@ -97,6 +97,6 @@ python benchmark/src/train/train.py --config benchmark/configs/exp_imu.yaml
 python benchmark/scripts/run_all_exps.py
 ```
 
-##### Qualitative Results
+### Qualitative Results
 ![Figure 1](assets/figure7_ver1.png)
 
