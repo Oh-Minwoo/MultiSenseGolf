@@ -185,31 +185,6 @@ def _moving_average(x: np.ndarray, window: int) -> np.ndarray:
     return out
 
 
-def _lowpass_filter(x: np.ndarray, cutoff_hz: float, fs_hz: float) -> np.ndarray:
-    if cutoff_hz <= 0:
-        return x
-    try:
-        from scipy.signal import butter, filtfilt
-
-        nyq = 0.5 * fs_hz
-        norm = min(max(cutoff_hz / nyq, 1e-5), 0.99)
-        b, a = butter(2, norm, btype="low", analog=False)
-        return filtfilt(b, a, x, axis=0)
-    except Exception:
-        window = max(1, int(round(fs_hz / cutoff_hz)))
-        return _moving_average(x, window)
-
-
-def _mean_center(x: np.ndarray) -> np.ndarray:
-    return x - x.mean(axis=0, keepdims=True)
-
-
-def _minmax_scale(x: np.ndarray, eps: float = 1e-6) -> np.ndarray:
-    xmin = x.min(axis=0, keepdims=True)
-    xmax = x.max(axis=0, keepdims=True)
-    return (x - xmin) / np.maximum(xmax - xmin, eps)
-
-
 def _common_time_range(times_list: List[np.ndarray]) -> Optional[Tuple[float, float]]:
     if not times_list:
         return None
@@ -390,19 +365,6 @@ def _normalize_accelerations_to_root(a: np.ndarray, R: np.ndarray, root_idx: int
     return a_bar
 
 
-
-def _load_imu(h5: h5py.File, select_imu_idx, dt: float) -> np.ndarray:
-    pos, _ = _load_gt(h5)
-    quat, _ = _load_quaternion(h5)
-
-    pos = pos.reshape(pos.shape[0], len(JOINT_NAMES), 3)[:, select_imu_idx, :]
-    quat = quat.reshape(quat.shape[0], len(JOINT_NAMES), 4)[:, select_imu_idx, :]
-
-    select_imu_idx = list(select_imu_idx)
-    hip_global_idx = 0
-    root_idx = select_imu_idx.index(hip_global_idx) if hip_global_idx in select_imu_idx else 0
-    return _make_imu_accel_rot_features(pos_sel=pos, quat_sel=quat, dt=dt, root_idx=root_idx)
-
     
 
 def _make_imu_accel_rot_features(
@@ -424,8 +386,6 @@ def _make_imu_accel_rot_features(
     norm_rot_mat = norm_rot_mat.reshape(norm_rot_mat.shape[0], norm_rot_mat.shape[1], 9)
     combined = np.concatenate([norm_accel, norm_rot_mat], axis=-1)  # (T, M, 12)
     return combined.reshape(combined.shape[0], -1)
-
-
 
 
 
