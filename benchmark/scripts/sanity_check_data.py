@@ -1,5 +1,4 @@
 import argparse
-import os
 
 from src.data.dataset import scan_dataset, SwingDataset
 
