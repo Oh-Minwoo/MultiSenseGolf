@@ -43,7 +43,10 @@ MultiSenseGolf/
 │  │  └─ ...
 │  │
 │  ├─ ...
-│  └─ Sub24/
+│  ├─ Sub24/
+|  └─ Documentation/
+│     ├─ Participant Metadata.csv
+|     └─ Annotation Data.csv
 │  
 ├─ tutorials/
 └─ benchmark/
@@ -62,7 +65,6 @@ python tutorials/load_hdf5.py --subject Sub24 --swing Swing01 --save-dir outputs
 ```
 
 ### Visualization Examples
-
 ```powershell
 # Visualize PNS 3D joint skeleton from the HDF5 file.
 python tutorials/visualize_mocap.py --subject Sub24 --swing Swing01
@@ -72,6 +74,12 @@ python tutorials/visualize_pressure.py --subject Sub24 --swing Swing01
 
 # Visualize gaze points overlaid on FPV video.
 python tutorials/visualize_fpv_and_gaze.py --subject Sub24 --swing Swing01
+```
+
+### Statistical Analysis Tutorials
+```powershell
+# Statistical analysis of carry distance across five subject characteristics.
+python tutorials/carry_distance_analysis.py
 ```
 
 <br>
