@@ -1,0 +1,10 @@
+seed: 42
+models:
+  ridge_alpha: [0.0001, 0.01, 1.0, 100.0, 10000.0]
+  logistic_c: [0.0001, 0.01, 1.0, 100.0, 10000.0]
+  xgboost_candidates:
+    - {n_estimators: 150, max_depth: 2, learning_rate: 0.05, min_child_weight: 5, subsample: 0.9, colsample_bytree: 0.8, reg_alpha: 0.0, reg_lambda: 5.0}
+    - {n_estimators: 250, max_depth: 3, learning_rate: 0.03, min_child_weight: 5, subsample: 0.9, colsample_bytree: 0.9, reg_alpha: 0.0, reg_lambda: 5.0}
+    - {n_estimators: 200, max_depth: 3, learning_rate: 0.05, min_child_weight: 10, subsample: 0.8, colsample_bytree: 0.8, reg_alpha: 0.1, reg_lambda: 10.0}
+    - {n_estimators: 180, max_depth: 4, learning_rate: 0.03, min_child_weight: 10, subsample: 0.8, colsample_bytree: 0.7, reg_alpha: 0.1, reg_lambda: 10.0}
+    - {n_estimators: 300, max_depth: 2, learning_rate: 0.03, min_child_weight: 1, subsample: 1.0, colsample_bytree: 1.0, reg_alpha: 0.0, reg_lambda: 1.0}
