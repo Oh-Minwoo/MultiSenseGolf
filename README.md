@@ -1,112 +1,97 @@
-# MultiSenseGolf: A Multimodal Wearable Sensor Dataset for Human Pose Estimation and Motion Analysis in Golf Swing
+# MultiSenseGolf: A Multimodal Sensor-Based Dataset for Golf Swing Motion and Shot Performance Analysis
 
 ![Figure 1](assets/figure1_ver5.png)
 
-
-MultiSenseGolf is a multimodal wearable sensor-based golf swing motion dataset tailored to train sensor fusion-based 3D human pose estimation (HPE). It consists of 1,557 swing samples from 24 participants ranging from beginners to professionals. The dataset integrates synchronized streams from a 17-channel whole-body IMU system, custom insole pressure sensors, a glass-type sensor recording first-person view (FPV) video with gaze tracking, and external RGB-D video. Post-hoc temporal alignment across heterogeneous sensors is established using an event-based time synchronization procedure. Additionally, shot outcome metrics recorded by a vision-based launch monitor, such as carry distance and ball speed, are provided as metadata. Dataset access is available at https://doi.org/10.7910/DVN/LCCLLW.
+MultiSenseGolf is a multimodal sensor-based dataset for golf swing motion and shot performance analyses. It consists of 1,557 swing samples from 24 participants across Beginner, Intermediate, and Professional groups. The dataset combines full-body joint kinematic estimates, bilateral foot pressure recordings, first-person view (FPV) video, gaze and head-motion data, external RGB-D video, and shot outcome measurements. Recordings are provided as swing-level records, with visually identified impact events used for post-hoc timestamp offset correction across device clocks. Dataset access is available at [Harvard Dataverse](https://doi.org/10.7910/DVN/LCCLLW).
 
 ---
 
 ## Initial Setup
 
 ### Installation
+
 ```powershell
 # 1. Create a conda virtual environment.
 conda create -n msg python=3.11 -y
 conda activate msg
 
-# 2. Install required python libraries 
+# 2. Install required Python libraries.
 python -m pip install -r requirements.txt
 ```
 
 ### Data Download & Directory Layout
 
-Download the dataset from the official link: https://doi.org/10.7910/DVN/LCCLLW  
-After downloading, place the data under the project root as `Data/` so the tutorials can locate files by subject and swing.
+Download the dataset from the [official link](https://doi.org/10.7910/DVN/LCCLLW). After downloading, place the data under the project root as `Data/` so the tutorials can locate files by participant and swing.
 
-If a participant is split into multiple parts (e.g., `Sub24_1`, `Sub24_2`), merge them into a single subject folder (e.g., `Sub24`) before running the tutorials.
+If a participant is split into multiple parts (e.g., `P24_1`, `P24_2`), merge them into a single participant folder (e.g., `P24`) before running the tutorials.
 
-```
+```text
 MultiSenseGolf/
 ├─ Data/
-│  ├─ Sub01/
+│  ├─ P01/
 │  │  ├─ Swing01/
-│  │  │  ├─ sub01_Swing01_stream_data.hdf5
+│  │  │  ├─ P01_Swing01_stream_data.hdf5
 │  │  │  ├─ ...
 │  │  │  └─ FPV_RGB.mp4
-│  │  │
 │  │  ├─ Swing02/
 │  │  │  └─ ...
 │  │  └─ ...
-│  │ 
-│  ├─ Sub02/
+│  ├─ P02/
 │  │  └─ ...
-│  │
 │  ├─ ...
-│  ├─ Sub24/
-|  └─ Documentation/
+│  ├─ P24/
+│  └─ Documentation/
 │     ├─ Participant Metadata.csv
-|     └─ Annotation Data.csv
-│  
+│     └─ Annotation Data.csv
 ├─ tutorials/
 └─ benchmark/
 ```
+
 <br>
 
 ## Data Usage Tutorial
 
 ### Load HDF5 Data
-```powershell
-# Load target swing data stored in a corresponding HDF5 file
-python tutorials/load_hdf5.py --subject Sub24 --swing Swing01
 
-# save loaded data as JSON formatted file 
-python tutorials/load_hdf5.py --subject Sub24 --swing Swing01 --save-dir outputs
+```powershell
+# Load target swing data stored in the corresponding HDF5 file.
+python tutorials/load_hdf5.py --participant P24 --swing Swing01
+
+# Save loaded data as a JSON file.
+python tutorials/load_hdf5.py --participant P24 --swing Swing01 --save-dir outputs
 ```
 
 ### Visualization Examples
-```powershell
-# Visualize PNS 3D joint skeleton from the HDF5 file.
-python tutorials/visualize_mocap.py --subject Sub24 --swing Swing01
 
-# Visualize insole pressure heatmaps from the HDF5 file.
-python tutorials/visualize_pressure.py --subject Sub24 --swing Swing01
+```powershell
+# Visualize the root-relative PNS 3D joint skeleton.
+python tutorials/visualize_mocap.py --participant P24 --swing Swing01
+
+# Visualize insole pressure heatmaps.
+python tutorials/visualize_pressure.py --participant P24 --swing Swing01
 
 # Visualize gaze points overlaid on FPV video.
-python tutorials/visualize_fpv_and_gaze.py --subject Sub24 --swing Swing01
+python tutorials/visualize_fpv_and_gaze.py --participant P24 --swing Swing01
 ```
 
 ### Statistical Analysis Tutorials
+
 ```powershell
-# Statistical analysis of carry distance across five subject characteristics.
+# Analyze carry distance across five participant characteristics.
 python tutorials/carry_distance_analysis.py
 ```
 
 <br>
 
-## Benchmark Test 
-To support reproducibility, we release the full benchmark code and configuration used in the Technical Validation experiments of the paper. We benchmarked supervised 3D Human Pose Estimation from multimodal golf swing data using four input conditions: `IMU Only`, `IMU + Pressure`, `IMU + FPV`, and `IMU + Pressure + FPV`. Inputs are provided as time aligned sequences consisting of (1) IMU features derived from body worn sensors, (2) bilateral insole pressure maps represented as 24×10 arrays per foot, and (3) FPV video embeddings extracted per frame. We report MPJPE, MPJVE, and Jitter across three baseline backbones (TCN, BiLSTM, Transformer), and the best overall MPJPE is achieved by the TCN with `IMU + Pressure + FPV`. Detailed experiment design and results can be found in the paper (Not published yet). 
+## Benchmark Test
 
+The benchmark predicts shot outcomes using five single-modality inputs: lead-hand kinematics, head IMU, foot pressure, FPV video, and front-view 2D motion features. Ball Speed is evaluated as a regression task, while Spin Axis and Launch Direction are evaluated as classification tasks. Ridge/Logistic Regression and XGBoost are compared using four participant-independent outer folds and three participant-grouped inner folds, with a no-sensor baseline for comparison. Regression results include R2, RMSE, and MAE; classification results include macro AUC, balanced accuracy, and macro F1.
 
 ### How to Run
 
 ```powershell
-# 1. (Optional) Create a subject split file if you want a new split.
-python benchmark/scripts/make_splits.py --root Data --out benchmark/configs/split.json
-
-# 2. (Optional, only if using FPV modality) Precompute FPV features.
-python benchmark/scripts/cache_features_fpv.py --root Data
-
-# 3. (Recommended) Sanity-check dataset availability and shapes.
-python benchmark/scripts/sanity_check_data.py --root Data
-
-# 4. Train a single experiment.
-python benchmark/src/train/train.py --config benchmark/configs/exp_imu.yaml
-
-# 5. (Optional) Run all configs and summarize results.
-python benchmark/scripts/run_all_exps.py
+# Extract features, train models, and evaluate the benchmark.
+python benchmark/run_benchmark.py --data-root Data --device cuda
 ```
 
-### Qualitative Results
-![Figure 1](assets/figure7_ver1.png)
-
+Use `--device cpu` for CPU execution. Results are saved under `benchmark/outputs/`. The random seed and hyperparameter search grids are in `benchmark/config.yaml`, and participant fold assignments are in `benchmark/folds.csv`.

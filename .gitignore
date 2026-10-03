@@ -207,3 +207,11 @@ marimo/_lsp/
 __marimo__/
 
 outputs/
+# Local dataset and generated analysis artifacts
+Data/
+results/
+benchmark/cache/
+benchmark/outputs/
+benchmark/*.pt
+.vscode/
+Ultralytics/
