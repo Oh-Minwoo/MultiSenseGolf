@@ -76,7 +76,10 @@ def load_data(metadata_path: Path, annotation_path: Path) -> pd.DataFrame:
     metadata = pd.read_csv(metadata_path, encoding="utf-8-sig")
     annotation = pd.read_csv(annotation_path, encoding="utf-8-sig")
 
-    metadata["pid"] = metadata["Participant Number"].str.replace("Sub", "").astype(int)
+    metadata["pid"] = (
+        metadata["Participant Number"].astype(str).str.strip()
+        .str.replace(r"^[Pp]", "", regex=True).astype(int)
+    )
     annotation = annotation.rename(columns={"Participant Number": "pid"})
 
     annotation["Carry Distance (m)"] = pd.to_numeric(
@@ -471,7 +474,7 @@ def write_report(
     ]
     for _, row in df.sort_values("pid").iterrows():
         lines.append(
-            f"  Sub{int(row['pid']):02d}: "
+            f"  P{int(row['pid']):02d}: "
             f"{int(row['n_swings_used'])}/{int(row['n_swings_total'])} "
             f"(removed {int(row['n_swings_removed'])}); "
             f"mean carry = {row['Carry Distance (m)']:.2f} m"
@@ -533,7 +536,7 @@ def write_report(
 
 def main() -> None:
     parser = argparse.ArgumentParser(
-        description="Carry distance analysis by subject characteristics "
+        description="Carry distance analysis by participant characteristics "
         "(per-participant aggregation)."
     )
     parser.add_argument(

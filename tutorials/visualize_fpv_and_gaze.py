@@ -7,30 +7,31 @@ import h5py
 import numpy as np
 
 
-def _resolve_subject_swing(subject: str, swing: str) -> Tuple[str, str]:
-    subject = str(subject)
+def _resolve_participant_swing(participant: str, swing: str) -> Tuple[str, str]:
+    participant = str(participant).strip()
+    if participant.lower().startswith("p"):
+        participant = participant[1:]
+    participant = f"P{int(participant):02d}"
     swing = str(swing)
-    if not subject.lower().startswith("sub"):
-        subject = f"Sub{int(subject):02d}"
     if not swing.lower().startswith("swing"):
         swing = f"Swing{int(swing):02d}"
-    return subject, swing
+    return participant, swing
 
 
-def _resolve_h5_path(root: Path, subject: str, swing: str) -> Path:
-    subject, swing = _resolve_subject_swing(subject, swing)
-    fname = f"{subject.lower()}_{swing}_stream_data.hdf5"
-    return root / subject / swing / fname
+def _resolve_h5_path(root: Path, participant: str, swing: str) -> Path:
+    participant, swing = _resolve_participant_swing(participant, swing)
+    fname = f"{participant}_{swing}_stream_data.hdf5"
+    return root / participant / swing / fname
 
 
-def _resolve_video_path(root: Path, subject: str, swing: str) -> Path:
-    subject, swing = _resolve_subject_swing(subject, swing)
-    return root / subject / swing / "FPV_RGB.mp4"
+def _resolve_video_path(root: Path, participant: str, swing: str) -> Path:
+    participant, swing = _resolve_participant_swing(participant, swing)
+    return root / participant / swing / "FPV_RGB.mp4"
 
 
 def load_pupil_gaze_from_h5(h5_path: Path) -> Tuple[np.ndarray, np.ndarray]:
-    gaze_key = "pupil_gaze_xy/gaze_values/data"
-    time_key = "pupil_gaze_xy/gaze_values/time_s"
+    gaze_key = "pupil-gaze-xy/gaze-values/data"
+    time_key = "pupil-gaze-xy/gaze-values/time_s"
     with h5py.File(h5_path, "r") as h5:
         if gaze_key not in h5 or time_key not in h5:
             raise KeyError(f"missing_dataset: {gaze_key} or {time_key}")
@@ -265,16 +266,16 @@ def play_gaze_overlay(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root", default="Data")
-    parser.add_argument("--subject", required=True)
+    parser.add_argument("--participant", required=True, help="Participant ID (e.g., P01 or 1).")
     parser.add_argument("--swing", required=True)
     args = parser.parse_args()
 
     root = Path(args.data_root)
-    h5_path = _resolve_h5_path(root, args.subject, args.swing)
+    h5_path = _resolve_h5_path(root, args.participant, args.swing)
     if not h5_path.is_file():
         raise FileNotFoundError(f"not_found: {h5_path}")
 
-    video_path = _resolve_video_path(root, args.subject, args.swing)
+    video_path = _resolve_video_path(root, args.participant, args.swing)
     world_video = str(video_path) if video_path.is_file() else None
 
     play_gaze_overlay(

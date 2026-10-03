@@ -13,10 +13,10 @@ import h5py
 def _load_pressure_from_h5(
     h5_path: Union[str, Path],
     *,
-    left_key: str = "wireless-insole-left/pressure_data/data",
-    right_key: str = "wireless-insole-right/pressure_data/data",
-    left_time_key: str = "wireless-insole-left/pressure_data/time_s",
-    right_time_key: str = "wireless-insole-right/pressure_data/time_s",
+    left_key: str = "wireless-insole-left/pressure-data/data",
+    right_key: str = "wireless-insole-right/pressure-data/data",
+    left_time_key: str = "wireless-insole-left/pressure-data/time_s",
+    right_time_key: str = "wireless-insole-right/pressure-data/time_s",
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     h5_path = Path(h5_path)
     if not h5_path.is_file():
@@ -63,15 +63,16 @@ def compute_fps(time_values: np.ndarray) -> Optional[float]:
     return float(1.0 / np.mean(positive_deltas))
 
 
-def _resolve_h5_path(root: Union[str, Path], subject: str, swing: str) -> str:
-    subject = str(subject)
+def _resolve_h5_path(root: Union[str, Path], participant: str, swing: str) -> str:
+    participant = str(participant).strip()
+    if participant.lower().startswith("p"):
+        participant = participant[1:]
+    participant = f"P{int(participant):02d}"
     swing = str(swing)
-    if not subject.lower().startswith("sub"):
-        subject = f"Sub{int(subject):02d}"
     if not swing.lower().startswith("swing"):
         swing = f"Swing{int(swing):02d}"
-    fname = f"{subject.lower()}_{swing}_stream_data.hdf5"
-    return str(Path(root) / subject / swing / fname)
+    fname = f"{participant}_{swing}_stream_data.hdf5"
+    return str(Path(root) / participant / swing / fname)
 
 
 def plot_pressure_heatmap_segment(
@@ -106,7 +107,7 @@ def plot_pressure_heatmap_segment(
     cbar = fig.colorbar(left_im, ax=axes, shrink=0.75, location="bottom", pad=0.08)
     cbar.set_label("Pressure")
 
-    time_text = axes[0].text(0.5, -0.15, "", transform=axes[0].transAxes, ha="center")
+    time_text = fig.text(0.5, 0.87, "", ha="center")
 
     left_fps = compute_fps(left_time_segment)
     interval_ms = 100 if left_fps is None else max(10, int(round(1000.0 / left_fps)))
@@ -134,11 +135,11 @@ def plot_pressure_heatmap_segment(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root", default="Data")
-    parser.add_argument("--subject", required=True)
+    parser.add_argument("--participant", required=True, help="Participant ID (e.g., P01 or 1).")
     parser.add_argument("--swing", required=True)
     args = parser.parse_args()
 
-    h5_path = _resolve_h5_path(args.data_root, args.subject, args.swing)
+    h5_path = _resolve_h5_path(args.data_root, args.participant, args.swing)
     if not os.path.isfile(h5_path):
         raise FileNotFoundError(f"not_found: {h5_path}")
     plot_pressure_heatmap_segment(h5_path)

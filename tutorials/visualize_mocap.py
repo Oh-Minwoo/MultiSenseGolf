@@ -59,12 +59,13 @@ def flatten_joint_positions(position_array: np.ndarray) -> np.ndarray:
     return position_array.reshape(position_array.shape[0], joint_count, 3)
 
 
-def load_pns_global_positions(
+def load_pns_root_relative_positions(
     h5_path: Union[str, Path],
     *,
-    stream: str = "pns-joint-position",
+    stream: str = "pns-joint-root-relative-position",
     value_key: str = "cm-values",
 ) -> Tuple[np.ndarray, np.ndarray]:
+    """Load joint positions relative to the root joint, in centimeters."""
     h5_path = Path(h5_path)
     if not h5_path.is_file():
         raise FileNotFoundError(f"not_found: {h5_path}")
@@ -78,15 +79,16 @@ def load_pns_global_positions(
     return position_data, timestamps
 
 
-def _resolve_h5_path(root: Union[str, Path], subject: str, swing: str) -> str:
-    subject = str(subject)
+def _resolve_h5_path(root: Union[str, Path], participant: str, swing: str) -> str:
+    participant = str(participant).strip()
+    if participant.lower().startswith("p"):
+        participant = participant[1:]
+    participant = f"P{int(participant):02d}"
     swing = str(swing)
-    if not subject.lower().startswith("sub"):
-        subject = f"Sub{int(subject):02d}"
     if not swing.lower().startswith("swing"):
         swing = f"Swing{int(swing):02d}"
-    fname = f"{subject.lower()}_{swing}_stream_data.hdf5"
-    return str(Path(root) / subject / swing / fname)
+    fname = f"{participant}_{swing}_stream_data.hdf5"
+    return str(Path(root) / participant / swing / fname)
 
 
 def visualize_pns_skeleton(
@@ -97,7 +99,7 @@ def visualize_pns_skeleton(
     speed_multiplier: float = 1.0,
     min_interval_ms: float = 2.0,
 ) -> FuncAnimation:
-    position_data, timestamps = load_pns_global_positions(h5_path)
+    position_data, timestamps = load_pns_root_relative_positions(h5_path)
     if position_data.size == 0 or timestamps.size == 0:
         raise ValueError("Selected swing contains no position data or timestamps.")
 
@@ -131,7 +133,7 @@ def visualize_pns_skeleton(
 
     fig = plt.figure(figsize=(8, 6))
     ax = fig.add_subplot(111, projection="3d")
-    ax.set_title(f"PNS Skeleton – {Path(h5_path).stem}")
+    ax.set_title(f"Root-relative joint positions (cm)\n{Path(h5_path).stem}")
 
     xs, ys, zs = joints[0].T
     rotation_matrix = np.array([[1, 0, 0], [0, 0, -1], [0, 1, 0]], dtype=np.float32)
@@ -196,11 +198,11 @@ def visualize_pns_skeleton(
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--data-root", default="Data")
-    parser.add_argument("--subject", required=True)
+    parser.add_argument("--participant", required=True, help="Participant ID (e.g., P01 or 1).")
     parser.add_argument("--swing", required=True)
     args = parser.parse_args()
 
-    h5_path = _resolve_h5_path(args.data_root, args.subject, args.swing)
+    h5_path = _resolve_h5_path(args.data_root, args.participant, args.swing)
     if not os.path.isfile(h5_path):
         raise FileNotFoundError(f"not_found: {h5_path}")
     visualize_pns_skeleton(h5_path)
